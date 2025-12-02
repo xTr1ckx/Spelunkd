@@ -6506,12 +6506,9 @@ MonoBehaviour:
   height: 24
   tileSize: 2.4
   currentLevel: 1
-<<<<<<< Updated upstream
   noiseScale: 10
   heightMultiplier: 10
   limitDepth: 10
-=======
->>>>>>> Stashed changes
   destructibleTilePrefab:
   - {fileID: 2667763868012008548, guid: 7375b4fb7de6710449b87ca6d9e2fb1f, type: 3}
   - {fileID: 2667763868012008548, guid: 11d690b2783797741a1d1726d366f5cc, type: 3}
