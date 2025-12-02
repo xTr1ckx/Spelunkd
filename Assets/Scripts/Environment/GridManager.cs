@@ -12,14 +12,13 @@ public class GridManager : MonoBehaviour
     public float tileSize = 2.4f;
     public int currentLevel = 1;
 
-    [Header("Perlin Noise Settings")]
-    public float noiseScale = 10f;
-    public float heightMultiplier = 10f;
-    public float limitDepth = 5f;
+    //[Header("Perlin Noise Settings")]
+    //public float noiseScale = 10f;
+    //public float heightMultiplier = 10f;
+    //public float limitDepth = 5f;
 
     [Header("Tile Prefabs")]
     public GameObject[] destructibleTilePrefab;
-    public GameObject[] indestructibleTilePrefab;
 
     [Header("Ore Data")]
     public OreData[] ores;
@@ -32,9 +31,11 @@ public class GridManager : MonoBehaviour
     private GameObject[,] structureGrid;
     private List<Vector2Int> destructiblePositions = new List<Vector2Int>();
 
+    private Vector2 gridOffset;
+
     private void Start()
     {
-
+        gridOffset = new Vector2(tileSize * 0.5f, tileSize * 0.5f);
         GenerateGrid();
         GenerateOres();
         structureGrid = new GameObject[width, height];
@@ -45,28 +46,24 @@ public class GridManager : MonoBehaviour
         grid = new TileBlock[width, height];
         destructiblePositions.Clear();
 
+        int terrainHeight = height - 7;
+
         for (int x = 0; x < width; x++)
         {
-            float perlinValue = Mathf.PerlinNoise(x / noiseScale, 0f);
-            int terrainHeight = Mathf.FloorToInt(perlinValue * heightMultiplier) + (height / 3);
-
-            for (int y = 0; y < height; y++)
+            for(int y = 0; y < height; y++)
             {
                 if (y > terrainHeight)
                     continue;
 
-                bool isBedrock = y < terrainHeight - limitDepth;
-                GameObject prefab = isBedrock
-                    ? GetRandom(indestructibleTilePrefab)
-                    : GetRandom(destructibleTilePrefab);
+                GameObject prefab = GetRandom(destructibleTilePrefab);
 
-                Vector2 position = new Vector2(x * tileSize, y * tileSize);
+                Vector2 position = new Vector2(x * tileSize, y * tileSize) + gridOffset;
                 GameObject tileObject = Instantiate(prefab, position, Quaternion.identity, transform);
 
                 TileBlock tile = tileObject.GetComponent<TileBlock>();
                 grid[x, y] = tile;
 
-                if (!isBedrock) destructiblePositions.Add(new Vector2Int(x, y));
+                destructiblePositions.Add(new Vector2Int(x, y));
             }
         }
     }
@@ -115,7 +112,7 @@ public class GridManager : MonoBehaviour
             Destroy(oldTile.gameObject);
         }
 
-        Vector2 spawnPos = new Vector2(pos.x * tileSize, pos.y * tileSize);
+        Vector2 spawnPos = new Vector2(pos.x * tileSize, pos.y * tileSize) + gridOffset;
         GameObject oreObject = Instantiate(ore.orePrefab, spawnPos, Quaternion.identity, transform);
         grid[pos.x, pos.y] = oreObject.GetComponent<TileBlock>();
     }
@@ -136,7 +133,7 @@ public class GridManager : MonoBehaviour
 
     public Vector2 GetWorldPosition(Vector2Int gridPos)
     {
-        return new Vector2(gridPos.x * tileSize, gridPos.y * tileSize);
+        return new Vector2(gridPos.x * tileSize, gridPos.y * tileSize) + gridOffset;
     }
 
     public void PlaceLadder(Vector2 worldPos)
@@ -173,18 +170,6 @@ public class GridManager : MonoBehaviour
         Vector2 spawnPos = GetWorldPosition(gridPos);
         GameObject ladder = Instantiate(ladderPrefab, spawnPos, Quaternion.identity, transform);
         structureGrid[gridPos.x, gridPos.y] = ladder;
-
-        //Ladder ladder = ladderObj.GetComponent<Ladder>();
-        //ladder.RefreshPlatformState();
-
-        //if(belowPos.y >= 0 && structureGrid[belowPos.x, belowPos.y] != null)
-        //{
-        //    Ladder below = structureGrid[belowPos.x, belowPos.y].GetComponent<Ladder>();
-        //    if (below != null)
-        //    {
-        //        below.RefreshPlatformState();
-        //    }
-        //}
 
         Debug.Log($"Placed ladder at {gridPos}");
     }
@@ -226,7 +211,7 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        Vector2 spawnPos = GetWorldPosition(gridPos); //+ Vector2.up * (tileSize / 2f); //everything after + is a new inclusion. No idea what it does.
+        Vector2 spawnPos = GetWorldPosition(gridPos);
         GameObject pillar = Instantiate(pillarPrefab, spawnPos, Quaternion.identity, transform);
         structureGrid[gridPos.x, gridPos.y] = pillar;
 
