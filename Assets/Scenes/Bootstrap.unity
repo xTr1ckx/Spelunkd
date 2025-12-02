@@ -6507,12 +6507,9 @@ MonoBehaviour:
   tileSize: 2.4
   currentLevel: 1
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
   noiseScale: 10
   heightMultiplier: 10
   limitDepth: 10
-=======
->>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
   destructibleTilePrefab:
